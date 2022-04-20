@@ -1,0 +1,296 @@
+#!/bin/sh
+
+# Copyright (c) 2022 by J.W https://github.com/jakwings/nonsense
+#
+#   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+#
+#  0. You just DO WHAT THE FUCK YOU WANT TO.
+
+set -euf; unset -v IFS; export LC_ALL=C
+
+NONSENSE_VERSION='1.0'
+
+NONSENSE_TYPE="${NONSENSE_TYPE-WTF0}"
+NONSENSE_NAME="${NONSENSE_NAME-"J.W"}"
+NONSENSE_LINK="${NONSENSE_LINK-"https://github.com/jakwings"}"
+NONSENSE_WIDTH="${NONSENSE_WIDTH-78}"
+
+help() {
+  printf '%s' 'nonsense -- a Generator for Public Licenses
+
+Usage:
+    nonsense [<options>] [<files>]
+
+    If files are specified, append a license to each file instead of stdout.
+
+Options:
+    -t, --type <text>
+        Set the type of license.
+    -a, --author <text>
+        Set the name of licensor.
+    -u, --url <text>
+        Set the URL about the licensor.
+    -l, --lang <text>
+        Set the language of source files.
+    -w, --width <number>
+        Set the maximum text width.
+    -i, --intro
+        Show introduction about some licenses.
+    -h, --help
+        Show this help information.
+    -V, --version
+        Show version & license of this program.
+'
+}
+
+introduce() {
+  printf '%s' 'Below are the licenses one can use with nonsense:
+
+* ""
+  A free-form license without an official name, but you may call it "WTF0".
+  i.e. Do What The Fuck You Want To Public License (WTFPL) without nonsense
+
+* "GAP"
+  A simple all-permissive license suggested by maintainers of GNU software.
+  i.e. the only GNU license I whole-heartedly appreciate with nonsense
+
+* "Tiny"
+  A terse but succinct license demanding attribution to the original authors.
+
+* "ISC"
+  An attribution-required license originated from Internet Systems Consortium.
+
+* "MIT"
+  One of the most popular attribution-required licenses, a bit more verbose.
+
+* "Unlicense"
+  A short and comprehensible license dedicated to works in the public domain.
+  For more information, please refer to http://unlicense.org/
+
+More license templates can be found at http://copyfree.org/standard/licenses
+'
+}
+
+make_sense() {
+  printf '%s\n\n' "nonsense, version ${NONSENSE_VERSION}"
+  nonsense WTF0 J.W 'https://github.com/jakwings/nonsense' '' 68 2022
+}
+
+die() {
+  [ 0 -ge "$#" ] || printf '[ERROR] %s\n' "$*" >&2
+  exit 1
+}
+
+have() {
+  [ -x "$(command -v "$1" 2>/dev/null)" ]
+}
+
+nonsense() (
+  license='' type="$1" name="$2" link="$3" lang="$4" width="$5" year="${6-}"
+
+  case "${type}" in
+    (''|*[Ww][Tt][Ff]*)  # WTFPL w/o Nonsense
+      year="${year:-"$(date '+%Y')"}"
+      license="\
+Copyright (c) ${year}${name:+" by ${name}"}${link:+" ${link}"}
+
+  TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+ 0. You just DO WHAT THE FUCK YOU WANT TO."
+      ;;
+    ([Gg][Aa][Pp]|*[Gg][Nn][Uu]*|*[Gg][Pp][Ll]*)  # GNU All-Permissive License
+      license="\
+Copying and distribution of this file, with or without modification, are \
+permitted in any medium without royalty provided the copyright notice and \
+this notice are preserved.  This file is offered as-is, without any warranty."
+      ;;
+    ([Tt][Ii][Nn][Yy])  # Tiny License
+      year="${year:-"$(date '+%Y')"}"
+      license="\
+Copyright (c) ${year}${name:+" by ${name}"}${link:+" ${link}"}
+
+You may do anything with this work that copyright law would normally \
+restrict, so long as you retain the above notice(s) and this license in all \
+redistributed copies and derived works.  There is no warranty."
+      ;;
+    ([Ii][Ss][Cc])  # ISC (Internet Systems Consortium, Inc.)
+      year="${year:-"$(date '+%Y')"}"
+      license="\
+Copyright (c) ${year}${name:+" by ${name}"}${link:+" ${link}"}
+
+Permission to use, copy, modify, and/or distribute this software for any \
+purpose with or without fee is hereby granted, provided that the above \
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED \"AS IS\" AND ISC DISCLAIMS ALL WARRANTIES WITH \
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY \
+AND FITNESS.  IN NO EVENT SHALL ISC BE LIABLE FOR ANY SPECIAL, DIRECT, \
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM \
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE \
+OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR \
+PERFORMANCE OF THIS SOFTWARE."
+      ;;
+    ([Mm][Ii][Tt])  # MIT/X11
+      year="${year:-"$(date '+%Y')"}"
+      license="\
+Copyright (c) ${year}${name:+" by ${name}"}${link:+" ${link}"}
+
+Permission is hereby granted, free of charge, to any person obtaining a copy \
+of this software and associated documentation files (the \"Software\"), to \
+deal in the Software without restriction, including without limitation the \
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or \
+sell copies of the Software, and to permit persons to whom the Software is \
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in \
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR \
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, \
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE \
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER \
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING \
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS \
+IN THE SOFTWARE."
+      ;;
+    ([Uu][Nn][Ll][Ii][Cc][Ee][Nn][Ss][Ee])  # The Unlicense
+      license="\
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or distribute \
+this software, either in source code form or as a compiled binary, for any \
+purpose, commercial or non-commercial, and by any means.
+
+In jurisdictions that recognize copyright laws, the author or authors of \
+this software dedicate any and all copyright interest in the software to the \
+public domain.  We make this dedication for the benefit of the public at \
+large and to the detriment of our heirs and successors.  We intend this \
+dedication to be an overt act of relinquishment in perpetuity of all present \
+and future rights to this software under copyright law.
+
+THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR \
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, \
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE \
+AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN \
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION \
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
+      ;;
+    (*) die "unrecognized license type: \"${type}\""
+  esac
+
+  if [ 0 -lt "${width}" ]; then
+    if have fmt; then
+      license="$(fmt -w "${width}")"  # lines are joined at white space
+    elif have ufold; then
+      license="$(ufold -w "${width}" -s -i)"
+    else
+      license="$(fold -w "${width}" -s | sed 's/[[:space:]]*$//')"
+    fi <<EOT
+${license}
+EOT
+  fi
+
+  while IFS='' read -r line; do
+    case "${lang}" in
+      ('')  # plain text
+        printf '%s\n' "${line}" ;;
+      ([Ss][Hh]|[Ss][Hh][Ee][Ll][Ll])  # posix shell
+        printf '#%s\n' "${line:+" ${line}"}" ;;
+      (*) die "unsupported language of source files: \"${lang}\""
+    esac
+  done <<EOT
+${license}
+EOT
+)
+
+
+trap '[ 0 -eq "$?" ] || die "nonsense exited abnormally"' EXIT
+
+# parse arguments
+#{
+  unset -v cfg_type cfg_name cfg_link cfg_lang cfg_width
+
+  arg_x='' arg_n=0
+  arg_push() {
+    eval "arg_$(( arg_n += 1 ))=\"\$1\"; arg_x=\"\${arg_x} arg_\${arg_n}\""
+  }
+  arg_need() {
+    [ "$3" -eq "$2" ] || die "$1 requires $3 argument(s)"
+  }
+
+  arg='' argi=0 argo='' argp=Vhi
+  while [ 0 -lt "$#" ]; do
+    : $(( argi += 1 ))
+    arg="$1"; shift
+    while true; do
+      case "${arg}" in
+        (-["${argp}"]?*) argo="${arg#-}" ;;
+        (-h|--help) help; exit 0 ;;
+        (-i|--intro) introduce; exit 0 ;;
+        (-V|--version) make_sense; exit 0 ;;
+
+        (-t|--type) arg_need "${arg}" "$#" 1; cfg_type="$1"; shift ;;
+        (-t?*) cfg_type="${arg#??}" ;;
+        (--type=*) cfg_type="${arg#*=}" ;;
+
+        (-a|--author) arg_need "${arg}" "$#" 1; cfg_name="$1"; shift ;;
+        (-a?*) cfg_name="${arg#??}" ;;
+        (--author=*) cfg_name="${arg#*=}" ;;
+
+        (-u|--url) arg_need "${arg}" "$#" 1; cfg_link="$1"; shift ;;
+        (-u?*) cfg_link="${arg#??}" ;;
+        (--url=*) cfg_link="${arg#*=}" ;;
+
+        (-l|--lang) arg_need "${arg}" "$#" 1; cfg_lang="$1"; shift ;;
+        (-l?*) cfg_lang="${arg#??}" ;;
+        (--lang=*) cfg_lang="${arg#*=}" ;;
+
+        (-w|--width) arg_need "${arg}" "$#" 1; cfg_width="$1"; shift ;;
+        (-w?*) cfg_width="${arg#??}" ;;
+        (--width=*) cfg_width="${arg#*=}" ;;
+
+        (--) break 2 ;;
+        (-?*) die "unrecognized option at #${argi}: \"${arg}\"" ;;
+        (*) arg_push "${arg}"
+      esac
+      case "${argo}" in
+        ('') break ;;
+        (-*) die "unrecognized option at #${argi}: \"--\"" ;;
+        ([!"${argp}"]*) arg="-${argo}"; argo='' ;;
+        (*) arg="-${argo%"${argo#?}"}"; argo="${argo#?}"
+      esac
+    done
+  done
+  unset -v arg argi argo argp
+
+  # set positional arguments
+  arg_x="set -- ${arg_x:+"$(printf ' "${%s}"' $arg_x)"} \${1+\"\$@\"}
+         unset -f arg_push arg_need; unset -v arg_n arg_x ${arg_x}"
+  eval "${arg_x}"
+#}
+
+# main
+#{
+  cfg_type="${cfg_type-"${NONSENSE_TYPE}"}"
+  cfg_name="${cfg_name-"${NONSENSE_NAME}"}"
+  cfg_link="${cfg_link-"${NONSENSE_LINK}"}"
+  cfg_lang="${cfg_lang-}"
+  cfg_width="${cfg_width-"${NONSENSE_WIDTH}"}"
+
+  if [ 0 -le "${cfg_width}" ] 2>/dev/null; then
+    # remove whitespace, number sign and leading zeros
+    cfg_width="$(( ${cfg_width#"${cfg_width%%[1-9]*}"} + 0 ))"
+  else
+    die "invalid text width: \"${cfg_width}\""
+  fi
+
+  if [ 0 -ge "$#" ]; then
+    nonsense "${cfg_type}" "${cfg_name}" "${cfg_link}" \
+             "${cfg_lang}" "${cfg_width}"
+  else
+    for file; do
+      nonsense "${cfg_type}" "${cfg_name}" "${cfg_link}" \
+               "${cfg_lang}" "${cfg_width}" >>"${file}"
+    done
+  fi
+#}
