@@ -8,7 +8,7 @@
 
 set -euf; unset -v IFS; export LC_ALL=C
 
-NONSENSE_VERSION='1.0'
+NONSENSE_VERSION='2.0'
 
 NONSENSE_TYPE="${NONSENSE_TYPE-WTF0}"
 NONSENSE_NAME="${NONSENSE_NAME-"J.W"}"
@@ -73,7 +73,7 @@ More license templates can be found at http://copyfree.org/standard/licenses
 
 make_sense() {
   printf '%s\n\n' "nonsense, version ${NONSENSE_VERSION}"
-  nonsense WTF0 J.W 'https://github.com/jakwings/nonsense' '' 68 2022
+  nonsense WTF0 J.W 'https://github.com/jakwings/nonsense' '' 0 2022
 }
 
 die() {
@@ -130,7 +130,7 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE \
 OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR \
 PERFORMANCE OF THIS SOFTWARE."
       ;;
-    ([Mm][Ii][Tt])  # MIT/X11
+    ([Mm][Ii][Tt])  # MIT/Expat
       year="${year:-"$(date '+%Y')"}"
       license="\
 Copyright (c) ${year}${name:+" by ${name}"}${link:+" ${link}"}
@@ -190,17 +190,19 @@ ${license}
 EOT
   fi
 
-  while IFS='' read -r line; do
-    case "${lang}" in
-      ('')  # plain text
-        printf '%s\n' "${line}" ;;
-      ([Ss][Hh]|[Ss][Hh][Ee][Ll][Ll])  # posix shell
-        printf '#%s\n' "${line:+" ${line}"}" ;;
-      (*) die "unsupported language of source files: \"${lang}\""
-    esac
-  done <<EOT
+  case "${lang}" in
+    ('')  # plain text
+      printf '%s\n' "${license}"
+      ;;
+    ([Ss][Hh]|[Ss][Hh][Ee][Ll][Ll])  # posix shell
+      while IFS='' read -r line; do
+        printf '#%s\n' "${line:+" ${line}"}"
+      done <<EOT
 ${license}
 EOT
+      ;;
+    (*) die "unsupported language of source files: \"${lang}\""
+  esac
 )
 
 
