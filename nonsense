@@ -8,7 +8,7 @@
 
 set -euf; unset -v IFS; export LC_ALL=C
 
-NONSENSE_VERSION='2.0'
+NONSENSE_VERSION='3.0'
 
 NONSENSE_TYPE="${NONSENSE_TYPE-WTF0}"
 NONSENSE_NAME="${NONSENSE_NAME-"J.W"}"
@@ -54,9 +54,6 @@ introduce() {
   A simple all-permissive license suggested by maintainers of GNU software.
   i.e. the only GNU license I whole-heartedly appreciate with nonsense
 
-* "Tiny"
-  A terse but succinct license demanding attribution to the original authors.
-
 * "ISC"
   An attribution-required license originated from Internet Systems Consortium.
 
@@ -77,8 +74,9 @@ make_sense() {
 }
 
 die() {
+  exitcode="$(( ($?) ? ($?) : 1 ))"
   [ 0 -ge "$#" ] || printf '[ERROR] %s\n' "$*" >&2
-  exit 1
+  exit "${exitcode}"
 }
 
 have() {
@@ -103,15 +101,6 @@ Copyright (c) ${year}${name:+" by ${name}"}${link:+" ${link}"}
 Copying and distribution of this file, with or without modification, are \
 permitted in any medium without royalty provided the copyright notice and \
 this notice are preserved.  This file is offered as-is, without any warranty."
-      ;;
-    ([Tt][Ii][Nn][Yy])  # Tiny License
-      year="${year:-"$(date '+%Y')"}"
-      license="\
-Copyright (c) ${year}${name:+" by ${name}"}${link:+" ${link}"}
-
-You may do anything with this work that copyright law would normally \
-restrict, so long as you retain the above notice(s) and this license in all \
-redistributed copies and derived works.  There is no warranty."
       ;;
     ([Ii][Ss][Cc])  # ISC (Internet Systems Consortium, Inc.)
       year="${year:-"$(date '+%Y')"}"
@@ -227,9 +216,9 @@ trap '[ 0 -eq "$?" ] || die "nonsense exited abnormally"' EXIT
     while true; do
       case "${arg}" in
         (-["${argp}"]?*) argo="${arg#-}" ;;
-        (-h|--help) help; exit 0 ;;
-        (-i|--intro) introduce; exit 0 ;;
-        (-V|--version) make_sense; exit 0 ;;
+        (-h|--help) help; exit ;;
+        (-i|--intro) introduce; exit ;;
+        (-V|--version) make_sense; exit ;;
 
         (-t|--type) arg_need "${arg}" "$#" 1; cfg_type="$1"; shift ;;
         (-t?*) cfg_type="${arg#??}" ;;
